@@ -32,7 +32,7 @@ A hyper-stylized, classified-themed, offensive-security code editor built purely
  |
 
 
- BUG LOG: V7 Fixes and issue previous versions had when attempting to run any code that required user input. Please continue reporting bugs as I greatly appreciate it<3!
+ BUG LOG: V7 Fixes an issue previous versions had when attempting to run any code that required user input. Please continue reporting bugs as I greatly appreciate it<3!
 
 ### Requirements
 
