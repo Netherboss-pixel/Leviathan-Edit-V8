@@ -1,21 +1,21 @@
 # leviathan_edit.pyw
 # LEVIATHAN EDIT v3.0 - PYQT6 POWERED ULTIMATE EDITION
 # FIXED: Input handling and crash fixes
-
+# FIXED: File browser integration
+# edited version for a file browser and if you're a dev please consider adding some documentation
+import file_browser as FB # Import the file_browser module
 import sys
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTextEdit, QPushButton, QLabel, QFrame, QComboBox, QSlider,
-    QFileDialog, QMessageBox, QMenu, QToolBar, QStatusBar,
-    QScrollArea, QGroupBox, QSplitter, QTabWidget, QDialog,
-    QDialogButtonBox, QLineEdit, QTextBrowser, QInputDialog,
-    QPlainTextEdit, QAbstractScrollArea, QCheckBox
+    QFileDialog, QMessageBox, QToolBar, QStatusBar,
+    QScrollArea, QTabWidget, QDialog, QLineEdit,
+    QPlainTextEdit, QCheckBox
 )
 from PyQt6.QtGui import (
     QFont, QTextCursor, QTextCharFormat, QColor, QPalette, QAction, 
-    QIcon, QPixmap, QTextFormat, QPainter, QSyntaxHighlighter, 
-    QFontMetrics, QKeySequence, QContextMenuEvent, QPaintEvent, 
-    QResizeEvent, QTextBlock, QTextDocument, QBrush
+     QPixmap, QPainter, QSyntaxHighlighter, 
+    QFontMetrics, QKeySequence, QTextDocument,
 )
 from PyQt6.QtCore import (
     Qt, QSize, QRegularExpression, pyqtSignal, QTimer,
@@ -1356,6 +1356,10 @@ subprocess.call(["/bin/sh", "-i"])
         run_action.triggered.connect(self.run_current_file)
         toolbar.addAction(run_action)
 
+        toggle_fb_action = QAction("EXPLORER", self)
+        toggle_fb_action.triggered.connect(self.toggle_file_browser)
+        toolbar.addAction(toggle_fb_action)
+
         toolbar.addSeparator()
         
         lang_label = QLabel("  LANG:")
@@ -1422,6 +1426,11 @@ subprocess.call(["/bin/sh", "-i"])
 
         # Add editor area
         main_layout.addWidget(editor_area, 1)
+
+        # === FILE BROWSER ===
+        self.file_browser = FB.FileExplorer()
+        self.file_browser.file_selected.connect(self.open_file_from_browser)
+        main_layout.addWidget(self.file_browser)
         
         # === INPUT CONSOLE (for interactive programs) ===
         self.input_frame = QFrame()
@@ -1531,12 +1540,16 @@ subprocess.call(["/bin/sh", "-i"])
         path, _ = QFileDialog.getOpenFileName(
             self, "Open File", 
             "", "All Files (*.*);;Python (*.py);;JavaScript (*.js);;HTML (*.html);;CSS (*.css);;Bash (*.sh)"
+            "", "All Files (*);;Python (*.py);;JavaScript (*.js);;HTML (*.html);;CSS (*.css);;Bash (*.sh)"
         )
         if not path:
             return
+        
+        self.load_file_into_new_tab(path)
 
+    def load_file_into_new_tab(self, path):
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, 'r', encoding='utf-8', errors='ignore') as f:
                 data = f.read()
 
             self.create_new_tab()
@@ -1561,6 +1574,12 @@ subprocess.call(["/bin/sh", "-i"])
             
         except Exception as e:
             QMessageBox.critical(self, "ERROR", f"Failed to open file:\n{str(e)}")
+
+    def open_file_from_browser(self, path):
+        self.load_file_into_new_tab(path)
+
+    def toggle_file_browser(self):
+        self.file_browser.setVisible(not self.file_browser.isVisible())
 
     def save_file(self):
         ed = self.current_editor()
