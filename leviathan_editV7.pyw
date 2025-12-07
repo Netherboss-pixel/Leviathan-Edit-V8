@@ -73,6 +73,8 @@ class ProcessWorker(QObject):
             env = os.environ.copy()
             if sys.platform == "win32":
                 env["PROMPT"] = ""
+                env["PYTHONIOENCODING"] = "utf-8"  
+                env["PYTHONLEGACYWINDOWSSTDIO"] = "0" 
             
             self.process = subprocess.Popen(
                 self.command,
@@ -83,6 +85,8 @@ class ProcessWorker(QObject):
                 text=True,
                 bufsize=0,
                 universal_newlines=True,
+                encoding='utf-8',  
+                errors='replace',  
                 env=env,
                 creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == "win32" else 0
             )
